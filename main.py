@@ -1,17 +1,17 @@
 import pygame
-import time
-from games import Pong
+from games import Pong2D, Pong
 from game_handler import GameHandler
+from selection_screen import SelectionScreen
 # Initialize Pygame
 pygame.init()
 
 
-game_handler = GameHandler(Pong)
+selection_screen = SelectionScreen([Pong,Pong2D])
 
 # Main loop
 running = True
 while running:
-    running = game_handler.loop()
+    running = selection_screen.loop()
 
 
 

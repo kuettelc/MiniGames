@@ -9,7 +9,7 @@ import math
 
 
 class Text(ConvexShapeProtocol):
-    def __init__(self, text: str, font: pygame.font.Font,x,y) -> None:
+    def __init__(self, text: str, font: pygame.font.Font,x: float,y: float) -> None:
         self.text = text
         self.font = font
         self.x = x
@@ -29,7 +29,19 @@ class Text(ConvexShapeProtocol):
         t_r = [self.x + self.text_surface.get_width(), self.y]
 
         return [t_l, t_r, b_r, b_l]
+
+class GameDisplay(MovingShapeProtocol):
+    def __init__(self, game_name: str, x: float, y: float) -> None:
+        self.text = Text(game_name, pygame.font.SysFont("arial", 10), x, y)
+
+    def update(self, dt: float):
+        return
     
+    def get_collider(self) -> ConvexShapeProtocol:
+        return self.text
+    
+
+
 class ScoreBoard(MovingShapeProtocol):
     def __init__(self, generic_text: str, x, y) -> None:
         self.generic_text = generic_text
@@ -96,6 +108,39 @@ class Padel(MovingShapeProtocol):
             self.rectangle.y += 200*dt
         if self.key_handler.get_pressed()[self.up_key]:
             self.rectangle.y -= 200*dt
+
+    def collides(self, other: MovingShapeProtocol):
+        return self.rectangle.collides(other.get_collider())
+
+    def constrain_to_wall(self,wall: Wall):
+        padel_is_below = (self.rectangle.y  + self.rectangle.height/2) > (wall.rectangle.y + wall.rectangle.height/2)
+        
+        if (wall.rectangle.y + wall.rectangle.height > self.rectangle.y) and padel_is_below:
+            self.rectangle.y = wall.rectangle.y + wall.rectangle.height
+        if (wall.rectangle.y < self.rectangle.y + self.rectangle.height) and not padel_is_below:
+            self.rectangle.y = wall.rectangle.y - self.rectangle.height
+
+    def get_collider(self) -> ConvexShapeProtocol:
+        return self.rectangle
+    
+class Padel2D(MovingShapeProtocol):
+    def __init__(self, rectangle: Rectangle, up_key:int, down_key:int, right_key: int, left_key: int, key_handler) -> None:
+        self.up_key = up_key
+        self.down_key = down_key
+        self.left_key = left_key
+        self.right_key = right_key
+        self.key_handler = key_handler
+        self.rectangle = rectangle
+
+    def update(self, dt: float):
+        if self.key_handler.get_pressed()[self.down_key]:
+            self.rectangle.y += 200*dt
+        if self.key_handler.get_pressed()[self.up_key]:
+            self.rectangle.y -= 200*dt
+        if self.key_handler.get_pressed()[self.right_key]:
+            self.rectangle.x += 200*dt
+        if self.key_handler.get_pressed()[self.left_key]:
+            self.rectangle.x -= 200*dt
 
     def collides(self, other: MovingShapeProtocol):
         return self.rectangle.collides(other.get_collider())
